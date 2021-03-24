@@ -1,6 +1,4 @@
-package A_Star;
-
-import java.util.ArrayList;
+package path_finding;
 
 public class Vertex {
         int id;//vertex id
@@ -24,9 +22,6 @@ public class Vertex {
             this.Gdistance=Long.MAX_VALUE;
             this.Fdistance=Long.MAX_VALUE;
         }
-
-
-
     public int getId() {
         return id;
     }
