@@ -4,6 +4,7 @@ public class Vertex {
         int id;//vertex id
         int x;
         int y;
+        int z=0;
         long Hdistance;//the distantion from the vertex to  target
         long Gdistance;//the distantion from the vertex to  source
         long Fdistance;//Fdistance=Hdistance+Gdistance
@@ -17,6 +18,17 @@ public class Vertex {
             this.id=id;
             this.x=x;
             this.y=y;
+            this.isBelong=true;
+            this.Hdistance=Long.MAX_VALUE;
+            this.Gdistance=Long.MAX_VALUE;
+            this.Fdistance=Long.MAX_VALUE;
+        }
+        public Vertex(int x,int y,int z,int id)
+        {
+            this.id=id;
+            this.x=x;
+            this.y=y;
+            this.z = z;
             this.isBelong=true;
             this.Hdistance=Long.MAX_VALUE;
             this.Gdistance=Long.MAX_VALUE;
