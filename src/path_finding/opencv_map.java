@@ -46,8 +46,8 @@ public class opencv_map {
             for (int j = 0; j < col; j++){
                 temp =mat.get(i, j);
                 if (temp[0] == 255)
-                    this.Arraymap[i+1][j+1] = 0;
-                else this.Arraymap[i+1][j+1] = 1;
+                    this.Arraymap[i+1][j+1] = 1;
+                else this.Arraymap[i+1][j+1] = 0;
             }
         }
         return this.Arraymap;

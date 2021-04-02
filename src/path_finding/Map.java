@@ -33,7 +33,7 @@ public class Map {
         dijkstra.initgragh(length_x, length_y);
     }
 
-    public void createmap() {
+    public void randcreatemap() {
         //随机生成
 
         while (true) {
@@ -42,6 +42,34 @@ public class Map {
             loadmap_Astar(length_x, length_y, source_x, source_y, target_x, target_y, a_star, originmap);
             if (a_star.search() != false) {
                 break;
+            }
+        }
+    }
+    public void loadcurmap(int[][]map)
+    {
+        Scanner in = new Scanner(System.in);
+
+        length_x=map.length-1;
+        length_y=map[0].length-1;
+        System.out.println("请输入起点坐标：");
+        source_x = in.nextInt();
+        source_y = in.nextInt();
+        System.out.println("请输入终点坐标：");
+        target_x = in.nextInt();
+        target_y = in.nextInt();
+        a_star = new A_Star(source_x, source_y, target_x, target_y);
+        originmap = map;
+        //dijkstra = new Dijkstra(source_x, source_y, target_x, target_y);
+        a_star.initgragh(length_x, length_y);
+        while (true) {
+            loadmap_Astar(length_x, length_y, source_x, source_y, target_x, target_y, a_star, originmap);
+            if (a_star.search() != false) {
+                break;
+            }
+            else
+            {
+                System.out.println("不存在该路径！");
+                return;
             }
         }
     }
@@ -90,8 +118,8 @@ public class Map {
             {
                 a_star.setVertex(i,j,map[i][j]);
             }
-        a_star.setVertex(source_x,source_y, 1);
-        a_star.setVertex(target_x,target_y,1);
+       // a_star.setVertex(source_x,source_y, 1);
+       // a_star.setVertex(target_x,target_y,1);
     }
     //将map装载到D算法中
     public static void loadmap_D(int length_x,int length_y,int source_x,int source_y,int target_x,int target_y,Dijkstra dijkstra,int[][]map)
