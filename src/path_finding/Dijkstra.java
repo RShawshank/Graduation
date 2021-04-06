@@ -12,6 +12,7 @@ public class Dijkstra {
     private int length_y;
     private Vertex[][]map;//0表示障碍。1表示路径
     private ArrayList<Vertex>openlist;
+    private int[][]curmap;
     public Dijkstra(int source_x,int source_y,int target_x,int target_y)
     {
         this.source_x=source_x;
@@ -34,7 +35,7 @@ public class Dijkstra {
         //对X,Y点周边的点进行初始化，其他点的G值保持MAX_VALUE
         for (int i = -1; i < 2; i++){
             for (int j = -1; j < 2; j++) {
-                if (x + i > 0 && x + i <=length_x && y + j > 0 && y + j <= length_y && map[x + i][y + j].id == 1) {
+                if (x + i > 0 && x + i <=length_x && y + j > 0 && y + j <= length_y && map[x + i][y + j].id!=2) {
                     if (Math.abs(i) + Math.abs(j) == 2&&map[x + i][y + j].Gdistance > map[x][y].Gdistance+14)
                     {
                         map[x + i][y + j].Gdistance = map[x][y].Gdistance + 14;
@@ -60,14 +61,16 @@ public class Dijkstra {
         Vertex outputVertex = null;
         System.out.print("("+source_x+","+source_y+")->");
         map[source_x][source_y].id=2;
+        curmap[source_x][source_y]=2;
         while(!path.isEmpty())
         {
             outputVertex=path.pop();
             System.out.print("("+outputVertex.x+","+outputVertex.y+")->");
             map[outputVertex.x][outputVertex.y].id=2;
+            curmap[outputVertex.x][outputVertex.y]=2;
         }
         System.out.println("("+target_x+","+target_y+")");
-        map[target_x][target_y].id=2;
+        map[target_x][target_y].id=2;curmap[target_x][target_y]=2;
     }
     public void showmap()
     {
@@ -90,7 +93,7 @@ public class Dijkstra {
             //从closelist中找到距离起点最近的节点
             for (int i = 1; i <= length_x; i++) {
                 for (int j = 1; j <= length_y; j++) {
-                    if (map[i][j].isBelong && map[i][j].id == 1) {
+                    if (map[i][j].isBelong && (map[i][j].id == 1||map[i][j].id==3||map[i][j].id==4)) {
                         if (map[i][j].Gdistance < min) {
                             min = map[i][j].Gdistance;
                             temp[0] = i;
@@ -104,7 +107,6 @@ public class Dijkstra {
                 initdist(temp[0], temp[1]);
                 if(temp[0]==target_x&&temp[1]==target_y)
                 {
-                    System.out.println("dijkstra算法的路径显示：");
                     DshowMap();
                     return true;
                 }
@@ -113,4 +115,11 @@ public class Dijkstra {
         return true;
     }
 
+    public void setCurmap(int[][] curmap) {
+        this.curmap = curmap;
+    }
+
+    public int[][] getCurmap() {
+        return curmap;
+    }
 }

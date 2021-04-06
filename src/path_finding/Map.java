@@ -11,6 +11,7 @@ public class Map {
     private int target_x;
     private int target_y;
     private int[][]originmap;
+    private int[][]curmap;
     private A_Star a_star;
     private Dijkstra dijkstra;
     public Map(){}
@@ -77,12 +78,14 @@ public class Map {
         long start, end;
         start = System.currentTimeMillis();
         loadmap_Astar(length_x,length_y,source_x,source_y,target_x,target_y,a_star,originmap);
+        a_star.setCurmap(originmap);
         a_star.search();
         System.out.println("A_Star算法的路径显示：");
         a_star.printfpath();
         end = System.currentTimeMillis();
         System.out.println("A_Star算法路径显示如下：");
         a_star.showmap();
+        curmap=a_star.getCurmap();
         System.out.println("A_Star算法运行时长：");
         System.out.println("start time:" + start+ "; end time:" + end+ "; Run Time:" + (end - start) + "(ms)");
 
@@ -91,10 +94,12 @@ public class Map {
         long start, end;
         start = System.currentTimeMillis();
         loadmap_D(length_x,length_y,source_x,source_y,target_x,target_y,dijkstra,originmap);
+        dijkstra.setCurmap(originmap);
         dijkstra.search();
         end = System.currentTimeMillis();
         System.out.println("dijkstra算法路径显示如下：");
         dijkstra.showmap();
+        curmap=dijkstra.getCurmap();
         System.out.println("dijkstra算法运行时长：");
         System.out.println("start time:" + start+ "; end time:" + end+ "; Run Time:" + (end - start) + "(ms)");
     }
@@ -107,7 +112,7 @@ public class Map {
             {
                 map[i][j]=rand.nextInt(2);
             }
-        map[source_x][source_y]=1;map[target_x][target_y]=1;
+        map[source_x][source_y]=3;map[target_x][target_y]=4;
 
     }
     //将map装载到Astar算法中
@@ -118,26 +123,24 @@ public class Map {
             {
                 a_star.setVertex(i,j,map[i][j]);
             }
-       // a_star.setVertex(source_x,source_y, 1);
-       // a_star.setVertex(target_x,target_y,1);
     }
     //将map装载到D算法中
-    public static void loadmap_D(int length_x,int length_y,int source_x,int source_y,int target_x,int target_y,Dijkstra dijkstra,int[][]map)
+    public  void loadmap_D(int length_x,int length_y,int source_x,int source_y,int target_x,int target_y,Dijkstra dijkstra,int[][]map)
     {
         for(int i=1;i<=length_x;i++)
             for(int j=1;j<=length_y;j++)
             {
                 dijkstra.setVertex(i,j,map[i][j]);
             }
-        dijkstra.setVertex(source_x,source_y, 1);
-        dijkstra.setVertex(target_x,target_y,1);
+        //dijkstra.setVertex(source_x,source_y,1);
+        //dijkstra.setVertex(target_x,target_y,1);
     }
-    public static void showmap(int length_x,int length_y,int[][]map)
+    public  void showmap()
     {
         System.out.println("原地图显示如下：");
         for(int i=1;i<length_x+1;i++){
             for(int j=1;j<length_y+1;j++) {
-                System.out.print(map[i][j] + " ");
+                System.out.print(originmap[i][j] + " ");
             }
             System.out.println();
         }

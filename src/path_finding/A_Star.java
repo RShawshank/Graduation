@@ -19,6 +19,7 @@ public class A_Star {
     private Vertex[][]map;//0表示障碍。1表示路径
     private ArrayList<Vertex>openlist;
     private Vertex finalVetex ;
+    private int[][]curmap;
     public A_Star(int source_x,int source_y,int target_x,int target_y)
     {
         this.source_x=source_x;
@@ -61,7 +62,7 @@ public class A_Star {
     public boolean search()
     {
         int i=0;
-        if(map[source_x][source_y].id!=1)
+        if(map[source_x][source_y].id==0)
         {
             System.out.println("开始起点设置错误！");return false;
         }
@@ -121,7 +122,6 @@ public class A_Star {
                 }
 
         }
-       // System.out.println("不存在该路径！");
         return false;
     }
     public void printfpath( )
@@ -135,15 +135,15 @@ public class A_Star {
         }
         Vertex outputVertex = null;
         System.out.print("("+source_x+","+source_y+")->");
-        map[source_x][source_y].id=2;
+        map[source_x][source_y].id=2;curmap[source_x][source_y]=2;
         while(!path.isEmpty())
         {
             outputVertex=path.pop();
             System.out.print("("+outputVertex.x+","+outputVertex.y+")->");
-            map[outputVertex.x][outputVertex.y].id=2;
+            map[outputVertex.x][outputVertex.y].id=2; curmap[outputVertex.x][outputVertex.y]=2;
         }
         System.out.println("("+target_x+","+target_y+")");
-        map[target_x][target_y].id=2;
+        map[target_x][target_y].id=2;curmap[target_x][target_y]=2;
     }
 
     public void showmap()
@@ -156,4 +156,11 @@ public class A_Star {
         }
     }
 
+    public void setCurmap(int[][] curmap) {
+        this.curmap = curmap;
+    }
+
+    public int[][] getCurmap() {
+        return curmap;
+    }
 }

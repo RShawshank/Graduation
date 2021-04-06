@@ -4,9 +4,6 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
-
-import java.awt.*;
-
 //二值化处理图像，将地图处理成01数组
 public class opencv_map {
     private String binarymapPath="C:\\Users\\rao\\Desktop\\binarymap.png";
