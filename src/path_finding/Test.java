@@ -1,11 +1,13 @@
 package path_finding;
 
+import org.opencv.core.Core;
+
 import java.awt.*;
 import java.beans.Visibility;
 
 public class Test {
 
-    //static{ System.loadLibrary(Core.NATIVE_LIBRARY_NAME); }
+    static{ System.loadLibrary(Core.NATIVE_LIBRARY_NAME); }
 
     public static void main(String[] args) {
         Test test = new Test();
@@ -14,6 +16,7 @@ public class Test {
     public void test(){
         visionablePathing_map();
         //array_map();
+        //opencvTest();
     }
     public void visionablePathing_map()
     {
@@ -23,7 +26,7 @@ public class Test {
     public void opencvTest()
     {
         opencv_map opencv_map=new opencv_map();
-        opencv_map.loadmap("C:\\Users\\rao\\Desktop\\1.png");
+        opencv_map.loadmap("C:\\Users\\rao\\Desktop\\2.png");
         int[][] originmap=opencv_map.createArrayMap();
         showmap(originmap);
         Map map = new Map();

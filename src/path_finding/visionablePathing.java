@@ -10,24 +10,23 @@ import java.awt.event.*;
 import java.util.Random;
 
 public class visionablePathing {
-    private int lengthxy = 20;
-    private int delay = 30;
+    private int lengthx = 20;
+    private int lengthy =20;
     private double dense = 0.2;
-    private double density = (lengthxy * lengthxy) * 0.2;
+    private double density = (lengthx * lengthy) * 0.2;
     private int sourcex = -1;
     private int sourcey = -1;
     private int targetx = -1;
     private int targety = -1;
     private int type = 0;
-    private int number = 0;
-    private int length = 0;
     private long startTime = 0;
-    private int totalTime = 0;
+    private long endTime = 0;
+    private long totalTime = 0;
     private int curAlg = 0;
     private int WIDTH = 1000;
     private final int HEIGHT = 750;
     private final int MSIZE = 700;
-    private int CSIZE = MSIZE / (lengthxy+1);
+    private int CSIZE = MSIZE / (Math.max(lengthx,lengthy)+1);
     // 点的最短长度
     private int FLOOR_CSIZE=2;
     //实现算法
@@ -38,22 +37,18 @@ public class visionablePathing {
     JFrame frame;
     //滑块
     JSlider size = new JSlider(1,70,2);
-    JSlider speed = new JSlider(0, 500, 30);
     //障碍物比重
     JSlider obstacles = new JSlider(1, 100, 50);
     JLabel algL = new JLabel("算法");
     JLabel toolL = new JLabel("起点终点");
     JLabel sizeL = new JLabel("大小:");
-    JLabel cellsL = new JLabel(lengthxy + "x" + lengthxy);
-    JLabel delayL = new JLabel("延迟:");
-    JLabel msL = new JLabel(delay + "ms");
+    JLabel cellsL = new JLabel(lengthx + "x" + lengthy);
     JLabel obstacleL = new JLabel("密度:");
     JLabel densityL = new JLabel(obstacles.getValue() + "%");
-    JLabel checkL = new JLabel("数量: " + number);
-    JLabel timeL = new JLabel("耗时: " + totalTime + " 秒");
+    JLabel timeL = new JLabel("耗时: " + totalTime + "毫秒");
     //按钮类
     JButton searchB = new JButton("开始搜索");
-    JButton resetB = new JButton("重置");
+    JButton loadmapB = new JButton("载入地图");
     JButton genMapB = new JButton("随机生成图");
     JButton clearMapB = new JButton("清空");
     JComboBox algorithmsBx = new JComboBox(algorithms);
@@ -87,8 +82,8 @@ public class visionablePathing {
         searchB.setBounds(40, space, 120, 25);
         toolP.add(searchB);
         space += buff;
-        resetB.setBounds(40, space, 120, 25);
-        toolP.add(resetB);
+        loadmapB.setBounds(40, space, 120, 25);
+        toolP.add(loadmapB);
         space += buff;
         genMapB.setBounds(40, space, 120, 25);
         toolP.add(genMapB);
@@ -116,14 +111,6 @@ public class visionablePathing {
         cellsL.setBounds(160, space, 40, 25);
         toolP.add(cellsL);
         space += buff;
-        delayL.setBounds(15, space, 50, 25);
-        toolP.add(delayL);
-        speed.setMajorTickSpacing(5);
-        speed.setBounds(50,space,100,25);
-        toolP.add(speed);
-        msL.setBounds(160, space, 40, 25);
-        toolP.add(msL);
-        space += buff;
         obstacleL.setBounds(15, space, 100, 25);
         toolP.add(obstacleL);
         obstacles.setMajorTickSpacing(5);
@@ -132,12 +119,8 @@ public class visionablePathing {
         densityL.setBounds(160, space, 100, 25);
         toolP.add(densityL);
         space += buff;
-        checkL.setBounds(15, space, 120, 25);
-        toolP.add(checkL);
-        space += buff;
         timeL.setBounds(15, space, 100, 25);
         toolP.add(timeL);
-        space += buff;
         frame.getContentPane().add(toolP);
         canvas = new canvasMap();
         canvas.setBounds(230, 10, MSIZE +1, MSIZE +1);
@@ -153,10 +136,16 @@ public class visionablePathing {
                 }
             }
         });
-        resetB.addActionListener(new ActionListener() {
+        loadmapB.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                resetMap();
+                cleanMap();
+                opencv_map opencv_map=new opencv_map();
+                opencv_map.loadmap("C:\\Users\\rao\\Desktop\\2.png");
+                map=opencv_map.createArrayMap();
+                lengthx=map.length-1;
+                lengthy=map[0].length-1;
+                reset();
                 Update();
             }
         });
@@ -181,6 +170,7 @@ public class visionablePathing {
                 Update();
             }
         });
+        //选择点的类型
         toolBx.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent itemEvent) {
@@ -190,19 +180,14 @@ public class visionablePathing {
         size.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent changeEvent) {
-                lengthxy = size.getValue() * 5;
+                lengthx = size.getValue() * 5;
+                lengthy=lengthx;
                 cleanMap();
                 reset();
                 Update();
             }
         });
-        speed.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent changeEvent) {
-                delay = speed.getValue();
-                Update();
-            }
-        });
+
         obstacles.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent changeEvent) {
@@ -215,31 +200,37 @@ public class visionablePathing {
     // 开始
     public void startSearch() {
         if (!solving) {
-            startTime = System.currentTimeMillis();
+
             switch (curAlg) {
                 //D
                 case 0:
                  Dijkstra  dijkstra = new Dijkstra(sourcex, sourcey, targetx, targety);
-                 dijkstra.initgragh(lengthxy,lengthxy);
-                 loadmap_D(lengthxy,lengthxy, dijkstra, map);
+                 dijkstra.initgragh(lengthx,lengthy);
+                 loadmap_D(lengthx,lengthy, dijkstra, map);
                  dijkstra.setCurmap(map);
+                 startTime = System.currentTimeMillis();
                  if(dijkstra.search()==false)
                  {
                      System.out.println("无到达路径");
                  }
+                 endTime = System.currentTimeMillis();
+                 totalTime=endTime-startTime;
                  map=dijkstra.getCurmap();
                  Update();
                     break;
                 //A*
                 case 1:
                 A_Star a_star = new A_Star(sourcex, sourcey, targetx, targety);
-                a_star.initgragh(lengthxy,lengthxy);
-                loadmap_Astar(lengthxy,lengthxy, a_star, map);
+                a_star.initgragh(lengthx,lengthy);
+                loadmap_Astar(lengthx,lengthy, a_star, map);
                 a_star.setCurmap(map);
+                startTime = System.currentTimeMillis();
                 if(a_star.search()==false)
                 {
                     System.out.println("无到达路径");
                 }
+                    endTime = System.currentTimeMillis();
+                    totalTime=endTime-startTime;
                     a_star.printfpath();
                     map=a_star.getCurmap();
                     Update();
@@ -248,48 +239,22 @@ public class visionablePathing {
                     break;
             }
         }
-        //pause();    //PAUSE STATE
+
     }
     // 重置
     public void reset() {
         solving = false;
-        length = 0;
-        number = 0;
         totalTime = 0;
     }
     // 更新
     public void Update() {
         // 密度
-        density = (lengthxy * lengthxy) * dense;
-        CSIZE = MSIZE / lengthxy;
+        density = (lengthx * lengthy) * dense;
+        CSIZE = MSIZE / Math.max(lengthx,lengthy);
         canvas.repaint();
-        cellsL.setText(lengthxy + "x" + lengthxy);
-        msL.setText(delay + "ms");
-        timeL.setText("时间: " + totalTime + " 秒");
+        cellsL.setText(lengthx + "x" + lengthy);
+        timeL.setText("时间: " + totalTime + "毫秒");
         densityL.setText(obstacles.getValue() + "%");
-        checkL.setText("数量: " + number);
-    }
-    public void delay()
-    {
-        try {
-            Thread.sleep(delay);
-        } catch (Exception e) {
-        }
-    }
-    public void pause()
-    {
-        int i = 0;
-        while (!solving) {
-            i++;
-            if (i > 500) {
-                i = 0;
-            }
-            try {
-                Thread.sleep(1);
-            } catch (Exception e) {
-            }
-        }
-        startSearch();
     }
     public void cleanMap()
     {
@@ -297,8 +262,12 @@ public class visionablePathing {
         sourcey =-1;
         targetx =-1;
         targety =-1;
-        map = new int[lengthxy+1][lengthxy+1];
-        resetMap();
+        map = new int[lengthx+1][lengthy+1];
+        for(int i=0;i<=lengthx;i++)
+            for (int j=0;j<=lengthy;j++)
+            {
+                map[i][j]=0;
+            }
         reset();
     }
     public void createMap()
@@ -309,20 +278,13 @@ public class visionablePathing {
                 int x;
                 int y;
                 do {
-                    x = random.nextInt(lengthxy + 1);
-                    y = random.nextInt(lengthxy + 1);
+                    x = random.nextInt(lengthx + 1);
+                    y = random.nextInt(lengthy + 1);
                 } while (map[x][y] == 1);
                 map[x][y] = 1;
             }
     }
-    public void resetMap()
-    {
-        for(int i=0;i<=lengthxy;i++)
-            for (int j=0;j<=lengthxy;j++)
-            {
-                map[i][j]=0;
-            }
-    }
+
     //实现图的绘制
     class canvasMap extends JPanel implements MouseListener, MouseMotionListener
     {
@@ -334,8 +296,8 @@ public class visionablePathing {
         @Override
         protected void paintComponent(Graphics graphics) {
             super.paintComponent(graphics);
-            for (int x = 1; x <=lengthxy; x++) {
-                for (int y = 1; y <=lengthxy; y++) {
+            for (int x = 1; x <=lengthx; x++) {
+                for (int y = 1; y <=lengthy; y++) {
                     switch (map[x][y]) {
                         case 0:
                             graphics.setColor(Color.BLACK);
@@ -441,5 +403,17 @@ public class visionablePathing {
             {
                 dijkstra.setVertex(i,j,map[i][j]);
             }
+    }
+
+    public void setMap(int[][] map) {
+        this.map = map;
+    }
+
+    public void setLengthx(int lengthxy) {
+        this.lengthx = lengthx;
+    }
+    public void setLengthy(int lengthy)
+    {
+        this.lengthy=lengthy;
     }
 }
